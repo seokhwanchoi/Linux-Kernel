@@ -28,8 +28,8 @@ C 컴파일 (Compile)
 bl : branch with link(지정된 주소로 점프하면서 동시에 다음 명령어의 주소를
 레지스터에 저장하는 멸령어): ex)bl 2500이면 -> 
 
-http://blog.daum.net/tlos6733/132
-![](http://cfile208.uf.daum.net/image/2246CF4C56BBF1A307C0E1)
+http://blog.daum.net/tlos6733/132 참고
+
 */
 
 ENTRY(stext)
