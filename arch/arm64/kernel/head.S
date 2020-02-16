@@ -26,7 +26,7 @@ C 컴파일 (Compile)
 
 <어셈블리어>
 bl : branch with link(지정된 주소로 점프하면서 동시에 다음 명령어의 주소를
-레지스터에 저장하는 멸령어): ex)bl 2500이면 -> 
+레지스터에 저장하는 멸령어)
 
 http://blog.daum.net/tlos6733/132 참고
 
@@ -34,12 +34,16 @@ http://blog.daum.net/tlos6733/132 참고
 adrp 명령어는 주소를 복사하는 역할을 수행합니다.
 9 NSX:FFFFFF97D6ACC190|   adrp    x0,0xFFFFFF97D91E7000
 
+AND x1,x2,x3     x1=x2 & X3
 */
 
-ENTRY(stext)
+ENTRY(stext)//stext 프로시저는 ENTRY(심볼 이름)...ENDPROC(심볼이름)의 형태로 둘러싸여있다.
 	bl	preserve_boot_args            //부트로더에 의해 전달된 부트 파라미터를 저장
 	bl	el2_setup		        // Drop to EL1, w0=cpu_boot_mode
 	adrp	x23, __PHYS_OFFSET
 	and	x23, x23, MIN_KIMG_ALIGN - 1	// KASLR offset, defaults to 0
-	bl	set_cpu_boot_mode_flag        //
-	bl	__create_page_tables
+	bl	set_cpu_boot_mode_flag        //기록
+	bl	__create_page_tables	      //페이지테이블 생성
+	bl	__cpu_setup			// initialise processor
+	b	__primary_switch
+ENDPROC(stext)
