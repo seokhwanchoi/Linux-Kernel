@@ -37,6 +37,7 @@ adrp 명령어는 주소를 복사하는 역할을 수행합니다.
 AND x1,x2,x3     x1=x2 & X3
 */
 
+/* stext 프로시저*/
 ENTRY(stext)//stext 프로시저는 ENTRY(심볼 이름)...ENDPROC(심볼이름)의 형태로 둘러싸여있다.
 	bl	preserve_boot_args            //부트로더에 의해 전달된 부트 파라미터를 저장
 	bl	el2_setup		        // Drop to EL1, w0=cpu_boot_mode
@@ -47,3 +48,24 @@ ENTRY(stext)//stext 프로시저는 ENTRY(심볼 이름)...ENDPROC(심볼이름)
 	bl	__cpu_setup			// initialise processor
 	b	__primary_switch
 ENDPROC(stext)
+
+
+/* preserve_boot_args 프로시저*/
+preserve_boot_args:
+	mov	x21, x0				// x21=FDT
+
+	adr_l	x0, boot_args			// record the contents of
+	stp	x21, x1, [x0]			// x0 .. x3 at kernel entry
+	stp	x2, x3, [x0, #16]
+
+	dmb	sy				// needed before dc ivac with
+						// MMU off
+
+	mov	x1, #0x20			// 4 x 8 bytes
+	b	__inval_dcache_area		// tail call
+ENDPROC(preserve_boot_args)
+
+/*
+ 첫 분기점인 preserve_boot_args 프로시저는 커널 부팅을 위해 전달된 부트 파라미터를 저장
+ x0레지스터만 물리주소로 명시, 나머지 레지스터는 나중에 사용하기 위해 예약
+*/
